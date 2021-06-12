@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>First, upload all known images to the server.<br>Server images will be mark as known images.</h3>
+    <a href="http://localhost:8000/faceapi/upload?name={Person_Name}&img={filename/jpg}">
+    '''http://localhost:8000/faceapi/upload?name={Person_Name}&img={filename/jpg}'''
+    </a>
+
+    <h3>Compare your test image with the server images.<br>The unknown image will be compared 
+    to all known images that have been uploaded to the server.</h3>
+    <a href="http://localhost:8000/faceapi/compare?img={filename.jpg}">
+    '''http://localhost:8000/faceapi/compare?img={filename.jpg}'''
+    </a>
+</body>
+</html>
