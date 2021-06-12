@@ -26,8 +26,8 @@ def compare(request):
     server_images = images_in_server(exclude='test.jpg')
     encoded_faces = images_encoded(server_images)
     face_names = classify_face(test_img, encoded_faces)
-
-    return HttpResponse(face_names)
+    
+    return JsonResponse({'detected': face_names})
 
 # def get_data_from_url(url):
 #     data = requests.get(url)

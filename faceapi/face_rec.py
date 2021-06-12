@@ -38,7 +38,7 @@ def classify_face(img_path, encoded_faces):
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
 
-        face_names.append(name)
+        face_names.append(name.split('/')[-1])
 
     return face_names
 
