@@ -11,9 +11,9 @@ def index(request):
 
 def download_image(img_url, targetname=None):
     filename = img_url.split('/')[-1]
-    dir = 'faces/'+filename
+    dir = 'faceapi/faces/'+filename
     if targetname != None:
-        dir = 'faces/'+targetname
+        dir = 'faceapi/faces/'+targetname
     img = requests.get(img_url)
     with open(dir, 'wb') as f:
         f.write(img.content)
