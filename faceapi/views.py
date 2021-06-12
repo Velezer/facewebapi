@@ -15,7 +15,7 @@ def upload(request):
     img = request.GET['img']
     name = request.GET['name']
     dir = download_image(img, name)
-    return HttpResponse(dir)
+    return HttpResponse('Uploaded in server at ' + dir)
 
 
 def compare(request):
@@ -26,7 +26,7 @@ def compare(request):
     server_images = images_in_server(exclude='test.jpg')
     encoded_faces = images_encoded(server_images)
     face_names = classify_face(test_img, encoded_faces)
-    
+
     return JsonResponse({'detected': face_names})
 
 # def get_data_from_url(url):
