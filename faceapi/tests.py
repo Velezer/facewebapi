@@ -2,9 +2,10 @@ from django.test import TestCase
 
 # Create your tests here.
 import requests
-import face_recognition as fr
-def encode_img(img_path):
-    face = fr.load_image_file(img_path)
-    return fr.face_encodings(face)[0]
+def download_image(img_url):
+    filename = img_url.split('/')[-1]
+    img = requests.get(img_url)
+    with open('faces/'+filename, 'wb') as f:
+        f.write(img.content)
+download_image('http://localhost:8080/faces/arief.jpg')
 
-encode_img('')

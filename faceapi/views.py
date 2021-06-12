@@ -11,7 +11,17 @@ def get_data_from_url(url):
     if data.status_code == 200:
         data = data.json()
         data = data['data']
+        for d in data:
+            d['foto'] = download_image(d['foto']) 
     return data
+
+def download_image(img_url):
+    filename = img_url.split('/')[-1]
+    dir = 'faces/'+filename
+    img = requests.get(img_url)
+    with open(dir, 'wb') as f:
+        f.write(img.content)
+    return dir
 
 def compare(request, img_path):
     url = 'http://localhost:8080/api/people'
