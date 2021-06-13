@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpRequest
 from .logic import download_image, images_in_server, images_encoded, classify_face
+import time, asyncio
 # Create your views here.
 
 
@@ -15,19 +16,31 @@ def upload(request):
     img = request.GET['img']
     name = request.GET['name']
     dir = download_image(img, name)
-    return HttpResponse('Uploaded in server at ' + dir)
+    return JsonResponse({'message': 'Uploaded in server at ' + dir})
 
 
-def compare(request):
+async def compare(request):
     '''http://localhost:8000/faceapi/compare?img={filename.jpg}'''
-    img = request.GET['img']
-    test_img = download_image(img, 'test.jpg')
-
+    start_time = time.time()
     server_images = images_in_server(exclude='test.jpg')
-    encoded_faces = images_encoded(server_images)
-    face_names = classify_face(test_img, encoded_faces)
+    img = request.GET['img']
+    
+    results = await asyncio.gather(images_encoded(server_images), download_image(img, 'test.jpg'))
+    time_encode = time.time() - start_time
+    print('time encode',time_encode)
 
-    return JsonResponse({'detected': face_names})
+    encoded_faces = results[0]
+    test_img =  results[1]
+    
+    face_names = classify_face(test_img, encoded_faces)
+    total = time.time() - start_time
+    time_classify = total - time_encode
+    return JsonResponse({
+        'detected': face_names, 
+        'time_encode': time_encode,
+        'time_classify': time_classify,
+        'time_total': total
+        })
 
 # def get_data_from_url(url):
 #     data = requests.get(url)

@@ -5,17 +5,6 @@ def encode_img(img_path):
     face = fr.load_image_file(img_path)
     return fr.face_encodings(face)[0]
 
-
-def get_encoded_faces(data):
-    encoded = {}
-    
-    for d in data:
-        encoded[d['nama']] = encode_img(d['foto'])
-    return encoded
-
-
-
-
 def classify_face(img_path, encoded_faces):
     faces = encoded_faces
     faces_encoded = list(faces.values())
