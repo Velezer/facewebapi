@@ -25,11 +25,6 @@ def check_if_encoded(filename):
     return os.path.isfile(filename)
 
 
-def save_file_b(filename, content):
-    with open(filename, 'wb') as f:
-        f.write(content)
-
-
 def save_pickle(filename, content):
     with open(filename, 'wb') as f:
         pickle.dump(content, f)
@@ -38,14 +33,7 @@ def save_pickle(filename, content):
 def read_pickle(filenam):
     with open(filenam, 'rb') as f:
         loaded = pickle.load(f)
-        # print(loaded)
         return loaded
-
-
-def read_file_b(filename):
-    with open(filename, 'rb') as f:
-        return f
-
 
 def images_in_server(exclude=None):
     '''return list'''
@@ -68,7 +56,6 @@ def images_encoded(images):
         if not check_if_encoded(THIS_DIR+'/encoded/'+filename):
             dict[nama] = frec.encode_img(img)
             save_pickle(THIS_DIR+'/encoded/'+filename, dict[nama])
-            # dict[nama] = read_pickle(THIS_DIR+'/encoded/'+filename)
             continue
         
         dict[nama] = read_pickle(THIS_DIR+'/encoded/'+filename)

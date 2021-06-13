@@ -12,9 +12,8 @@ def classify_face(img_path, encoded_faces):
 
     img = fr.load_image_file(img_path)
 
-    face_locations = fr.face_locations(img)
-    unknown_face_encodings = fr.face_encodings(img, face_locations)
-
+    unknown_face_encodings = fr.face_encodings(img)
+    
     face_names = []
     for face_encoding in unknown_face_encodings:
         # See if the face is a match for the known face(s)

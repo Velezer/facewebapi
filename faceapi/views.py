@@ -27,11 +27,11 @@ async def compare(request):
     
     results = await asyncio.gather(download_image(img, 'test.jpg'), images_encoded(server_images))
     time_encode = time.time() - start_time
-    print('time encode',time_encode)
 
     test_img =  results[0]
     encoded_faces = results[1]
     
+    print('time encode',time_encode)
     face_names = classify_face(test_img, encoded_faces)
     total = time.time() - start_time
     time_classify = total - time_encode
@@ -41,22 +41,3 @@ async def compare(request):
         'time_classify': time_classify,
         'time_total': total
         })
-
-# def get_data_from_url(url):
-#     data = requests.get(url)
-#     if data.status_code == 200:
-#         data = data.json()
-#         data = data['data']
-#         for d in data:
-#             d['foto'] = download_image(d['foto'])
-#     return data
-
-# def compare_krefa(request):
-#     url = 'http://localhost:8080/api/people'
-#     data = get_data_from_url(url)
-#     encoded_faces = frec.get_encoded_faces(data)
-#     img_url = request.GET['img']
-#     face_names = frec.classify_face(
-#         download_image(img_url, 'test.jpg'), encoded_faces)
-
-#     return HttpResponse(face_names)
