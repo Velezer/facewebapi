@@ -25,12 +25,12 @@ async def compare(request):
     server_images = images_in_server(exclude='test.jpg')
     img = request.GET['img']
     
-    results = await asyncio.gather(images_encoded(server_images), download_image(img, 'test.jpg'))
+    results = await asyncio.gather(download_image(img, 'test.jpg'), images_encoded(server_images))
     time_encode = time.time() - start_time
     print('time encode',time_encode)
 
-    encoded_faces = results[0]
-    test_img =  results[1]
+    test_img =  results[0]
+    encoded_faces = results[1]
     
     face_names = classify_face(test_img, encoded_faces)
     total = time.time() - start_time

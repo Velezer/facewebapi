@@ -38,7 +38,7 @@ def save_pickle(filename, content):
 def read_pickle(filenam):
     with open(filenam, 'rb') as f:
         loaded = pickle.load(f)
-        print(loaded)
+        # print(loaded)
         return loaded
 
 
