@@ -2,5 +2,12 @@ from django.test import TestCase
 
 # Create your tests here.
 import os
+from multiprocessing import Process, Array
 
-print(os.path.isfile('faceapi/encoded/arief.jpg'))
+def square():
+    for i in range(1000):
+        i + i
+    return 'selesai'
+
+processes = []
+num_processes = os.cpu_count()

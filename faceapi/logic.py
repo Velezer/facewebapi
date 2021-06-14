@@ -2,6 +2,7 @@ import os
 import pickle
 import requests
 from . import face_rec as frec
+from .face_rec import classify_face
 from asgiref.sync import sync_to_async
 
 THIS_DIR = os.path.dirname(__file__)
@@ -63,5 +64,5 @@ def images_encoded(images):
     return dict
 
 
-def classify_face(test_img, encoded_faces):
-    return frec.classify_face(test_img, encoded_faces)
+# def classify_face(test_img, encoded_faces):
+#     return frec.classify_face(test_img, encoded_faces)
