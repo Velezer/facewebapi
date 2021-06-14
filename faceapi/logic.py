@@ -62,7 +62,3 @@ def images_encoded(images):
         dict[nama] = read_pickle(THIS_DIR+'/encoded/'+filename)
 
     return dict
-
-
-# def classify_face(test_img, encoded_faces):
-#     return frec.classify_face(test_img, encoded_faces)
