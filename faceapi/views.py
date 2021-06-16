@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpRequest
-from .logic import download_image, images_in_server, images_encoded, classify_face
+from .logic import compress_img, download_image, get_pickled_images, classify_face, list_server_images, pickling_server_images
 import time, asyncio
 # Create your views here.
 
@@ -11,21 +11,24 @@ def index(request):
     return render(request, template, context)
 
 
-def upload(request):
+async def upload(request):
     '''http://localhost:8000/faceapi/upload?name={Person_Name}&img={filename/jpg}'''
     img = request.GET['img']
     name = request.GET['name']
-    dir = download_image(img, name)
-    return JsonResponse({'message': 'Uploaded in server at ' + dir})
+    dir = await download_image(img, name)
+    return JsonResponse({
+        'status':'success',
+        'message': 'Uploaded in server at ' + dir
+        })
 
 
 async def compare(request):
     '''http://localhost:8000/faceapi/compare?img={filename.jpg}'''
     start_time = time.time()
-    server_images = images_in_server(exclude='test.jpg')
+    server_images = list_server_images(exclude='test.jpg')
     img = request.GET['img']
     
-    results = await asyncio.gather(download_image(img, 'test.jpg'), images_encoded(server_images))
+    results = await asyncio.gather(download_image(img, 'test.jpg'), get_pickled_images(server_images))
     
     test_img =  results[0]
     encoded_faces = results[1]
