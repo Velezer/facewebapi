@@ -1,5 +1,6 @@
 import os
 import pickle
+import time
 import face_recognition as fr
 import numpy as np
 import requests
@@ -28,7 +29,7 @@ def read_pickle(filename: str):
 
 
 @sync_to_async
-def download_image(img_url: str, targetname: str = None) -> str:
+def download_image(img_url: str, targetname: str = None, pickling: bool = True) -> str:
     filename = img_url.split('/')[-1]
     dir = dir_faces+filename
     if targetname != None:
@@ -38,9 +39,9 @@ def download_image(img_url: str, targetname: str = None) -> str:
     img = requests.get(img_url)
     with open(dir, 'wb') as f:
         f.write(img.content)
-    # compress_img(dir, (500,500), 50)
-    compress_img(dir, size=(310, 310), quality=36)
-    pickling_server_images()
+    compress_img(dir, size=(200, 200), quality=25)
+    if pickling:
+        pickling_server_images()
     return dir
 
 
@@ -76,18 +77,19 @@ def get_pickled_images(images: List) -> Dict:
 def encode_one_face(img_path: str):
     '''return encoded one face in a image'''
     face = fr.load_image_file(img_path)
-    return fr.face_encodings(face)[0]
+    return fr.face_encodings(face, model='large')[0]
 
 
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
-    return fr.face_encodings(face)
+    return fr.face_encodings(face, model='large')
 
 
 def compress_img(img_path: str, size: Tuple, quality: int):
     img = Image.open(img_path)
-    if img.size[0] > size[0] or img.size[1] > size[1]:
+    img_size = img.size
+    if img_size[0] > size[0] or img_size[1] > size[1]:
         img.thumbnail(size, Image.ANTIALIAS)
     img.save(img_path, quality=quality)
 
@@ -98,18 +100,17 @@ def classify_face(img_path: str, encoded_faces: Dict):
 
     # compress_img(img_path, size=(308, 308), quality=36)
     unknown_face_encodings = encode_faces(img_path)
-
     face_names = []
+    the_distances = []
     for face_encoding in unknown_face_encodings:
         name = "Unknown"
         matches = fr.compare_faces(
             faces_encoded, face_encoding, tolerance=0.53)
         face_distances = fr.face_distance(faces_encoded, face_encoding)
-        print(face_distances)
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
-
+        the_distances.append(min(face_distances))
         face_names.append(name.split('/')[-1])
 
-    return face_names
+    return face_names, the_distances

@@ -27,15 +27,15 @@ async def compare(request):
     start_time = time.time()
     server_images = list_server_images(exclude='test.jpg')
     img = request.GET['img']
-    
-    results = await asyncio.gather(download_image(img, 'test.jpg'), get_pickled_images(server_images))
+    results = await asyncio.gather(download_image(img, 'test.jpg', False), get_pickled_images(server_images))
     
     test_img =  results[0]
     encoded_faces = results[1]
     
-    face_names = classify_face(test_img, encoded_faces)
+    face_names, the_distances = classify_face(test_img, encoded_faces)
     total = time.time() - start_time
     return JsonResponse({
         'detected': face_names, 
+        'distances': the_distances,
         'response_time': total
         })
