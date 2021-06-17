@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpRequest
-from .logic import compress_img, download_image, get_pickled_images, classify_face, list_server_images, pickling_server_images
+from .logic import (get_pickled_images, classify_face, list_server_images, download_image, pickling_images)
 import time
 import asyncio
 # Create your views here.
@@ -9,6 +9,7 @@ import asyncio
 def index(request):
     template = 'faceapi/index.html'
     context = {}
+    pickling_images()
     return render(request, template, context)
 
 
@@ -17,6 +18,7 @@ async def upload(request):
     img = request.GET['img']
     name = request.GET['name']
     await download_image(img, name)
+    pickling_images()
     return JsonResponse({
         'status': 'success',
         'data': {'name': name, 'img': img},

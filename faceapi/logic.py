@@ -17,6 +17,7 @@ def save_pickle(filename: str, content):
     with open(filename, 'wb') as f:
         pickle.dump(content, f)
 
+
 def read_pickle(filename: str):
     with open(filename, 'rb') as f:
         loaded = pickle.load(f)
@@ -24,40 +25,37 @@ def read_pickle(filename: str):
 
 
 @sync_to_async
-def download_image(img_url: str, targetname: str = None, pickling: bool = True) -> str:
+def download_image(img_url: str, targetname: str = None) -> str:
     filename = img_url.split('/')[-1]
-    dir = dir_faces+filename
+    filename = ''.join([dir_faces, filename])
     if targetname != None:
-        dir = dir_faces+targetname
-    if not dir.endswith('.jpg'):
-        dir += '.jpg'
-    img = requests.get(img_url)
-    with open(dir, 'wb') as f:
+        filename = ''.join([dir_faces, targetname])
+    if not filename.endswith('.jpg'):
+        filename = ''.join([filename, '.jpg'])
+    with open(filename, 'wb') as f:
+        img = requests.get(img_url)
         f.write(img.content)
-    compress_img(dir, size=(240, 240), quality=24)
-    if pickling:
-        pickling_server_images()
-    return dir
+    compress_img(filename, size=(240, 240), quality=24)
+    return filename
 
 
 def list_server_images(exclude: str = None) -> List:
-    images = []
     for _, _, fnames in os.walk(dir_faces):
-        for f in fnames:
-            if f.endswith(".jpg") and exclude not in f:
-                images.append(dir_faces+f)
-    return images
+        return [''.join([dir_faces, f]) for f in fnames if f.endswith(".jpg") and exclude not in f]
+
 
 def pickling_image(image):
     filename = image.split('/')[-1]
-    if not os.path.isfile(dir_encoded+filename):
-        content = encode_faces(image)[0] #encode one face
-        save_pickle(dir_encoded+filename, content)
+    filename = ''.join([dir_encoded, filename])
+    if not os.path.isfile(filename):
+        content = encode_faces(image)[0]  # encode one face
+        save_pickle(filename, content)
 
-def pickling_server_images():
-    images = list_server_images(exclude='test.jpg')
+
+def pickling_images(images=list_server_images(exclude='test.jpg')):
     for image in images:
         pickling_image(image)
+
 
 @sync_to_async
 def get_pickled_images(images: List) -> Dict:
@@ -65,9 +63,10 @@ def get_pickled_images(images: List) -> Dict:
     for img in images:
         nama = img.split(".")[0]
         filename = img.split('/')[-1]
-        dict[nama] = read_pickle(dir_encoded+filename)
+        dict[nama] = read_pickle(''.join([dir_encoded, filename]))
 
     return dict
+
 
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
@@ -87,9 +86,9 @@ def compress_img(img_path: str, size: Tuple, quality: int):
 def classify_face(img_path: str, encoded_faces: Dict):
     faces_encoded = list(encoded_faces.values())
     known_face_names = list(encoded_faces.keys())
-    
+
     unknown_face_encodings = encode_faces(img_path)
-    
+
     data = {
         'detected': [],
         'distances': [],
