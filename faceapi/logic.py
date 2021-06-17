@@ -39,7 +39,7 @@ def download_image(img_url: str, targetname: str = None, pickling: bool = True) 
     img = requests.get(img_url)
     with open(dir, 'wb') as f:
         f.write(img.content)
-    compress_img(dir, size=(200, 200), quality=25)
+    compress_img(dir, size=(240, 240), quality=24) 
     if pickling:
         pickling_server_images()
     return dir
@@ -83,7 +83,8 @@ def encode_one_face(img_path: str):
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
-    return fr.face_encodings(face, model='large')
+    flocations = fr.face_locations(face, 1)
+    return fr.face_encodings(face, flocations, model='large')
 
 
 def compress_img(img_path: str, size: Tuple, quality: int):
@@ -98,19 +99,19 @@ def classify_face(img_path: str, encoded_faces: Dict):
     faces_encoded = list(encoded_faces.values())
     known_face_names = list(encoded_faces.keys())
 
-    # compress_img(img_path, size=(308, 308), quality=36)
     unknown_face_encodings = encode_faces(img_path)
     face_names = []
     the_distances = []
+    nearest = []
     for face_encoding in unknown_face_encodings:
         name = "Unknown"
-        matches = fr.compare_faces(
-            faces_encoded, face_encoding, tolerance=0.53)
+        matches = fr.compare_faces(faces_encoded, face_encoding, 0.62)
         face_distances = fr.face_distance(faces_encoded, face_encoding)
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
         the_distances.append(min(face_distances))
         face_names.append(name.split('/')[-1])
+        nearest.append(known_face_names[best_match_index].split('/')[-1])
 
-    return face_names, the_distances
+    return face_names, the_distances, nearest

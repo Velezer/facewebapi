@@ -1,13 +1,13 @@
 from django.test import TestCase
 
 # Create your tests here.
-import os
-from multiprocessing import Process, Array
+import time
 
-def square():
-    for i in range(1000):
-        i + i
-    return 'selesai'
-
-processes = []
-num_processes = os.cpu_count()
+a = 'a'
+b = 'b'
+start = time.time()
+print(a+b)
+print(time.time()-start)
+start = time.time()
+print(''.join([a,b]))
+print(time.time()-start)
