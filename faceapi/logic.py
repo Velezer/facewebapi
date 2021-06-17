@@ -13,14 +13,9 @@ dir_faces = THIS_DIR+'/faces/'
 dir_encoded = THIS_DIR+'/encoded/'
 
 
-def check_if_encoded(filename: str) -> bool:
-    return os.path.isfile(filename)
-
-
 def save_pickle(filename: str, content):
     with open(filename, 'wb') as f:
         pickle.dump(content, f)
-
 
 def read_pickle(filename: str):
     with open(filename, 'rb') as f:
@@ -39,7 +34,7 @@ def download_image(img_url: str, targetname: str = None, pickling: bool = True) 
     img = requests.get(img_url)
     with open(dir, 'wb') as f:
         f.write(img.content)
-    compress_img(dir, size=(240, 240), quality=24) 
+    compress_img(dir, size=(240, 240), quality=24)
     if pickling:
         pickling_server_images()
     return dir
@@ -47,21 +42,22 @@ def download_image(img_url: str, targetname: str = None, pickling: bool = True) 
 
 def list_server_images(exclude: str = None) -> List:
     images = []
-    for dirpath, dnames, fnames in os.walk(dir_faces):
+    for _, _, fnames in os.walk(dir_faces):
         for f in fnames:
             if f.endswith(".jpg") and exclude not in f:
                 images.append(dir_faces+f)
     return images
 
+def pickling_image(image):
+    filename = image.split('/')[-1]
+    if not os.path.isfile(dir_encoded+filename):
+        content = encode_faces(image)[0] #encode one face
+        save_pickle(dir_encoded+filename, content)
 
 def pickling_server_images():
-    images = list_server_images('test.jpg')
+    images = list_server_images(exclude='test.jpg')
     for image in images:
-        filename = image.split('/')[-1]
-        if not check_if_encoded(dir_encoded+filename):
-            content = encode_one_face(image)
-            save_pickle(dir_encoded+filename, content)
-
+        pickling_image(image)
 
 @sync_to_async
 def get_pickled_images(images: List) -> Dict:
@@ -72,13 +68,6 @@ def get_pickled_images(images: List) -> Dict:
         dict[nama] = read_pickle(dir_encoded+filename)
 
     return dict
-
-
-def encode_one_face(img_path: str):
-    '''return encoded one face in a image'''
-    face = fr.load_image_file(img_path)
-    return fr.face_encodings(face, model='large')[0]
-
 
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
@@ -98,9 +87,9 @@ def compress_img(img_path: str, size: Tuple, quality: int):
 def classify_face(img_path: str, encoded_faces: Dict):
     faces_encoded = list(encoded_faces.values())
     known_face_names = list(encoded_faces.keys())
-
+    
     unknown_face_encodings = encode_faces(img_path)
-
+    
     data = {
         'detected': [],
         'distances': [],
@@ -111,10 +100,11 @@ def classify_face(img_path: str, encoded_faces: Dict):
         matches = fr.compare_faces(faces_encoded, face_encoding, 0.62)
         face_distances = fr.face_distance(faces_encoded, face_encoding)
         best_match_index = np.argmin(face_distances)
+        nearest = known_face_names[best_match_index].split('/')[-1]
         if matches[best_match_index]:
-            name = known_face_names[best_match_index]
-        data['detected'].append(name.split('/')[-1])
+            name = nearest
+        data['detected'].append(name)
         data['distances'].append(min(face_distances))
-        data['nearest'].append(known_face_names[best_match_index].split('/')[-1])
+        data['nearest'].append(nearest)
 
     return data
