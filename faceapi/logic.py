@@ -83,7 +83,7 @@ def encode_one_face(img_path: str):
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
-    flocations = fr.face_locations(face, 1)
+    flocations = fr.face_locations(face, 2)
     return fr.face_encodings(face, flocations, model='large')
 
 
@@ -100,9 +100,12 @@ def classify_face(img_path: str, encoded_faces: Dict):
     known_face_names = list(encoded_faces.keys())
 
     unknown_face_encodings = encode_faces(img_path)
-    face_names = []
-    the_distances = []
-    nearest = []
+
+    data = {
+        'detected': [],
+        'distances': [],
+        'nearest': []
+    }
     for face_encoding in unknown_face_encodings:
         name = "Unknown"
         matches = fr.compare_faces(faces_encoded, face_encoding, 0.62)
@@ -110,8 +113,8 @@ def classify_face(img_path: str, encoded_faces: Dict):
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
-        the_distances.append(min(face_distances))
-        face_names.append(name.split('/')[-1])
-        nearest.append(known_face_names[best_match_index].split('/')[-1])
+        data['detected'].append(name.split('/')[-1])
+        data['distances'].append(min(face_distances))
+        data['nearest'].append(known_face_names[best_match_index].split('/')[-1])
 
-    return face_names, the_distances, nearest
+    return data
