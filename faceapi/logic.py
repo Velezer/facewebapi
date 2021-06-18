@@ -43,7 +43,6 @@ def download_image(img_url: str, targetname: str = None) -> str:
     with open(filename, 'wb') as f:
         img = requests.get(img_url)
         f.write(img.content)
-    compress_img(filename, size=(200, 200), quality=24)
     return filename
 
 
