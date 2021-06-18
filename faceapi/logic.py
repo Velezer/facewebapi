@@ -68,8 +68,8 @@ def pickling_images(images=list_server_images(exclude='test.jpg')):
 def get_pickled_images(images: List) -> Dict:
     dict = {}
     for img in images:
-        nama = img.split(".")[0]
         filename = img.split('/')[-1]
+        nama = filename.split(".")[0]
         filename = ''.join([dir_encoded, filename])
         dict[nama] = read_pickle(filename)
 
@@ -103,11 +103,10 @@ def classify_face(unknown_face_encodings, encoded_faces: Dict):
     }
     for face_encoding in unknown_face_encodings:
         name = "Unknown"
-        matches = fr.compare_faces(faces_encoded, face_encoding, 0.62)
         face_distances = fr.face_distance(faces_encoded, face_encoding)
         best_match_index = np.argmin(face_distances)
-        nearest = known_face_names[best_match_index].split('/')[-1]
-        if matches[best_match_index]:
+        nearest = known_face_names[best_match_index]
+        if best_match_index <= 0.62:
             name = nearest
         data['detected'].append(name)
         data['distances'].append(min(face_distances))
