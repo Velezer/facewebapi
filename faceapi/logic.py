@@ -24,6 +24,14 @@ def read_pickle(filename: str):
         return loaded
 
 
+def delete_image(name: str):
+    filenames = (''.join([dir_faces, name, '.jpg']),
+                 ''.join([dir_faces, name, '.jpg']))
+    for f in filenames:
+        if os.path.exists(f):
+            os.remove(f)
+
+
 @sync_to_async
 def download_image(img_url: str, targetname: str = None) -> str:
     filename = img_url.split('/')[-1]
@@ -35,7 +43,7 @@ def download_image(img_url: str, targetname: str = None) -> str:
     with open(filename, 'wb') as f:
         img = requests.get(img_url)
         f.write(img.content)
-    compress_img(filename, size=(240, 240), quality=24)
+    compress_img(filename, size=(200, 200), quality=24)
     return filename
 
 
@@ -63,7 +71,8 @@ def get_pickled_images(images: List) -> Dict:
     for img in images:
         nama = img.split(".")[0]
         filename = img.split('/')[-1]
-        dict[nama] = read_pickle(''.join([dir_encoded, filename]))
+        filename = ''.join([dir_encoded, filename])
+        dict[nama] = read_pickle(filename)
 
     return dict
 
@@ -72,7 +81,8 @@ def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
     flocations = fr.face_locations(face, 2)
-    return fr.face_encodings(face, flocations, model='large')
+    result = fr.face_encodings(face, flocations, model='large')
+    return result
 
 
 def compress_img(img_path: str, size: Tuple, quality: int):
@@ -83,11 +93,9 @@ def compress_img(img_path: str, size: Tuple, quality: int):
     img.save(img_path, quality=quality)
 
 
-def classify_face(img_path: str, encoded_faces: Dict):
+def classify_face(unknown_face_encodings, encoded_faces: Dict):
     faces_encoded = list(encoded_faces.values())
     known_face_names = list(encoded_faces.keys())
-
-    unknown_face_encodings = encode_faces(img_path)
 
     data = {
         'detected': [],
