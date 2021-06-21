@@ -79,8 +79,11 @@ def get_pickled_images(images: List) -> Dict:
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
-    flocations = fr.face_locations(face, 2)
-    result = fr.face_encodings(face, flocations, model='large')
+    ''''''
+    # flocations = fr.face_locations(face, 2)
+    # result = fr.face_encodings(face, flocations, model='large')
+    '''turn on when need to detect small faces'''
+    result = fr.face_encodings(face, model='large')
     return result
 
 
