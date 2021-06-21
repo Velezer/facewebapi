@@ -55,8 +55,13 @@ def pickling_image(image):
     filename = image.split('/')[-1]
     filename = ''.join([dir_encoded, filename])
     if not os.path.isfile(filename):
-        content = encode_faces(image)[0]  # encode one face
-        save_pickle(filename, content)
+        try:
+            content = encode_faces(image)[0]  # encode one face
+        except IndexError:
+            print('No face detected')
+            delete_image(filename.split('/')[-1])
+        else:
+            save_pickle(filename, content)
 
 
 def pickling_images(images=list_server_images(exclude='test.jpg')):
@@ -105,12 +110,13 @@ def classify_face(unknown_face_encodings, encoded_faces: Dict):
         'nearest': []
     }
     for face_encoding in unknown_face_encodings:
-        name = "Unknown"
         face_distances = fr.face_distance(faces_encoded, face_encoding)
         best_match_index = np.argmin(face_distances)
         nearest = known_face_names[best_match_index]
         if best_match_index <= 0.62:
             name = nearest
+        else:
+            name = "Unknown"
         data['detected'].append(name)
         data['distances'].append(min(face_distances))
         data['nearest'].append(nearest)
