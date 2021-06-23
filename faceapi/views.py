@@ -59,7 +59,8 @@ async def compare(request):
     
     try:
         compress_img(results[0], size=(200, 200), quality=24)
-    except Exception:
+    except Exception as e:
+        print(e)
         response = JsonResponse({
             'status': 'error',
             'message': "Maybe the image file is corrupt or the server can't download that"

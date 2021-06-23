@@ -113,7 +113,7 @@ def classify_face(unknown_face_encodings, encoded_faces: Dict):
         face_distances = fr.face_distance(faces_encoded, face_encoding)
         best_match_index = np.argmin(face_distances)
         nearest = known_face_names[best_match_index]
-        if best_match_index <= 0.62:
+        if face_distances[best_match_index] <= 0.62:
             name = nearest
         else:
             name = "Unknown"
