@@ -20,27 +20,30 @@ async def upload(request):
     name = request.GET['name']
     try:
         filename = await download_image(img, name)
-        compress_img(filename, size=(400, 400), quality=40)
     except Exception:
         response = JsonResponse({
             'status': 'error',
             'data': {'name': name, 'img': img},
-            'message': 'Upload failed'
+            'message': 'Upload failed. Maybe you uploaded a non image file.'
         })
         response.status_code = 400
         return response
+    
+    compress_img(filename, size=(400, 400), quality=40)
+    
+    images = list_server_images(exclude='test.jpg')
     try:
-        images = list_server_images(exclude='test.jpg')
         pickling_images(images)
     except Exception:
         delete_image(name)
         response = JsonResponse({
             'status': 'error',
             'data': {'name': name, 'img': img},
-            'message': "Error occurs. Try again or upload a valid image"
+            'message': "Can't pickle the image"
         })
         response.status_code = 400
         return response
+    
     return JsonResponse({
         'status': 'success',
         'data': {'name': name, 'img': img},
@@ -51,9 +54,10 @@ async def upload(request):
 async def compare(request):
     '''http://localhost:8000/faceapi/compare?img={filename.jpg}'''
     start_time = time.perf_counter()
-    
-    server_images = list_server_images(exclude='test.jpg')
     img = request.GET['img']
+    exclude = request.GET['exclude']
+
+    server_images = list_server_images(excludes=['test.jpg', exclude+'.jpg'])
 
     results = await asyncio.gather(download_image(img, 'test.jpg'), get_pickled_images(server_images))
     
@@ -83,5 +87,6 @@ async def compare(request):
     return JsonResponse({
         'status': 'success',
         'data': data,
+        'exclude': exclude,
         'response_time': total
     })

@@ -9,8 +9,8 @@ from asgiref.sync import sync_to_async
 from PIL import Image
 
 THIS_DIR = os.path.dirname(__file__)
-dir_faces = THIS_DIR+'/faces/'
-dir_encoded = THIS_DIR+'/encoded/'
+dir_faces = ''.join([THIS_DIR, '/faces/'])
+dir_encoded = ''.join([THIS_DIR, '/encoded/'])
 
 
 def save_pickle(filename: str, content):
@@ -25,7 +25,7 @@ def read_pickle(filename: str):
 
 
 def delete_image(name: str):
-    filenames = (''.join([dir_faces, name, '.jpg']),
+    filenames = (''.join([dir_encoded, name, '.jpg']),
                  ''.join([dir_faces, name, '.jpg']))
     for f in filenames:
         if os.path.exists(f):
@@ -46,9 +46,9 @@ def download_image(img_url: str, targetname: str = None) -> str:
     return filename
 
 
-def list_server_images(exclude: str = None) -> List:
+def list_server_images(excludes: List = None) -> List:
     for _, _, fnames in os.walk(dir_faces):
-        return [''.join([dir_faces, f]) for f in fnames if f.endswith(".jpg") and exclude not in f]
+        return [''.join([dir_faces, f]) for f in fnames if f.endswith(".jpg") and f not in excludes]
 
 
 def pickling_image(image):
@@ -64,7 +64,7 @@ def pickling_image(image):
             save_pickle(filename, content)
 
 
-def pickling_images(images=list_server_images(exclude='test.jpg')):
+def pickling_images(images=list_server_images(excludes=['test.jpg'])):
     for image in images:
         pickling_image(image)
 
@@ -84,11 +84,10 @@ def get_pickled_images(images: List) -> Dict:
 def encode_faces(img_path: str):
     '''return encoded all face in a image'''
     face = fr.load_image_file(img_path)
-    ''''''
-    # flocations = fr.face_locations(face, 2)
-    # result = fr.face_encodings(face, flocations, model='large')
-    '''turn on when need to detect small faces'''
-    result = fr.face_encodings(face, model='large')
+
+    flocations = fr.face_locations(face, 2)
+    result = fr.face_encodings(face, flocations, model='large')
+
     return result
 
 
@@ -97,6 +96,8 @@ def compress_img(img_path: str, size: Tuple, quality: int):
     img_size = img.size
     if img_size[0] > size[0] or img_size[1] > size[1]:
         img.thumbnail(size, Image.ANTIALIAS)
+    if img.mode == 'RGBA': #png A for alpha which is transparency
+        img = img.convert('RGB')
     img.save(img_path, quality=quality)
 
 
