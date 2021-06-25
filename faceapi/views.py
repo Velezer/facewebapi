@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpRequest
-from .logic import (delete_image, encode_faces, get_pickled_images, classify_face,
-                    list_server_images, download_image, pickling_images, compress_img)
+from .logic import *
 import time
 import asyncio
 # Create your views here.
@@ -31,7 +30,7 @@ async def upload(request):
     
     compress_img(filename, size=(400, 400), quality=40)
     
-    images = list_server_images(exclude='test.jpg')
+    images = list_server_images(excludes=['test.jpg']) 
     try:
         pickling_images(images)
     except Exception:
@@ -52,12 +51,18 @@ async def upload(request):
 
 
 async def compare(request):
-    '''http://localhost:8000/faceapi/compare?img={filename.jpg}'''
+    '''http://localhost:8000/faceapi/compare?exclude={Person}&img={filename.jpg}'''
     start_time = time.perf_counter()
     img = request.GET['img']
-    exclude = request.GET['exclude']
+    
+    excludes = ['test.jpg']
+    try:
+        exclude = request.GET['exclude']
+        excludes.append(exclude+'.jpg')
+    except:
+        pass
 
-    server_images = list_server_images(excludes=['test.jpg', exclude+'.jpg'])
+    server_images = list_server_images(excludes=excludes)
 
     results = await asyncio.gather(download_image(img, 'test.jpg'), get_pickled_images(server_images))
     
@@ -87,6 +92,6 @@ async def compare(request):
     return JsonResponse({
         'status': 'success',
         'data': data,
-        'exclude': exclude,
+        'excludes': excludes[1:], 
         'response_time': total
     })
