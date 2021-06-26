@@ -51,7 +51,7 @@ async def upload(request):
 
 
 async def compare(request):
-    '''http://localhost:8000/faceapi/compare?exclude={Person}&img={filename.jpg}'''
+    '''http://localhost:8000/faceapi/compare?excludes={Person}&excludes={Person}&img={filename.jpg}'''
     start_time = time.perf_counter()
     img = request.GET['img']
  
