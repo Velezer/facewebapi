@@ -6,4 +6,4 @@ import requests
 
 simple = ['a','b']
 
-print('a' in simple)
+print(simple+['c'])

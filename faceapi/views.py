@@ -30,7 +30,7 @@ async def upload(request):
     
     compress_img(filename, size=(400, 400), quality=40)
     
-    images = list_server_images(excludes=['test.jpg']) 
+    images = list_server_images(excludes=['test']) 
     try:
         pickling_images(images)
     except Exception:
@@ -54,11 +54,12 @@ async def compare(request):
     '''http://localhost:8000/faceapi/compare?exclude={Person}&img={filename.jpg}'''
     start_time = time.perf_counter()
     img = request.GET['img']
+ 
     
-    excludes = ['test.jpg']
+    excludes = ['test']
     try:
-        exclude = request.GET['exclude']
-        excludes.append(exclude+'.jpg')
+        for exclude in request.GET.getlist('excludes'):
+            excludes.append(exclude)
     except:
         pass
 

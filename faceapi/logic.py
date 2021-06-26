@@ -47,6 +47,7 @@ def download_image(img_url: str, targetname: str = None) -> str:
 
 
 def list_server_images(excludes: List = None) -> List:
+    excludes = [''.join([exclude, '.jpg']) if not exclude.endswith('.jpg') else exclude for exclude in excludes ]
     for _, _, fnames in os.walk(dir_faces):
         return [''.join([dir_faces, f]) for f in fnames if f.endswith(".jpg") and f not in excludes]
 
